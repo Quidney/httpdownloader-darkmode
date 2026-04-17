@@ -724,7 +724,7 @@ LRESULT CALLBACK SFTPKeysTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 					}
 					else
 					{
-						color = _CreateSolidBrush( ( COLORREF )RGB( 0x00, 0x00, 0x00 ) );
+						color = _CreateSolidBrush( dm_color_window_background );
 					}
 					_FillRect( dis->hDC, &dis->rcItem, color );
 					_DeleteObject( color );
@@ -878,7 +878,16 @@ LRESULT CALLBACK SFTPKeysTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 						_DeleteObject( color );
 
 						// White text.
-						_SetTextColor( hdcMem, _GetSysColor( COLOR_WINDOW ) );
+#ifdef ENABLE_DARK_MODE
+						if ( g_use_dark_mode )
+						{
+							_SetTextColor( hdcMem, dm_color_window_text );
+						}
+						else
+#endif
+						{
+							_SetTextColor( hdcMem, _GetSysColor( COLOR_WINDOW ) );
+						}
 						_DrawTextW( hdcMem, buf, -1, &rc, DT_NOPREFIX | DT_SINGLELINE | DT_ALIGN | DT_VCENTER | DT_END_ELLIPSIS );
 						_BitBlt( dis->hDC, dis->rcItem.left + last_rc.left, last_rc.top, width, height, hdcMem, 0, 0, SRCCOPY );
 					}
@@ -888,7 +897,7 @@ LRESULT CALLBACK SFTPKeysTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 						if ( g_use_dark_mode )
 						{
 							// Fill the background.
-							color = _CreateSolidBrush( ( dis->itemID & 1 ? dm_color_edit_background : ( COLORREF )RGB( 0x00, 0x00, 0x00 ) ) );
+							color = _CreateSolidBrush( ( dis->itemID & 1 ? dm_color_edit_background : dm_color_window_background ) );
 							_FillRect( hdcMem, &rc, color );
 							_DeleteObject( color );
 

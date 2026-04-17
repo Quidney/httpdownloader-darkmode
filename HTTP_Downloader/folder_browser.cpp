@@ -25,9 +25,25 @@
 #include "string_tables.h"
 #include "utilities.h"
 #include "cmessagebox.h"
+#include "dark_mode.h"
 
 bool use_file_open_dialog = true;	// Assume OLE32 was initialized.
 bool use_fallback_file_open_dialog = false;
+
+#ifdef ENABLE_DARK_MODE
+static int CALLBACK BrowseCallbackDarkMode( HWND hWnd, UINT uMsg, LPARAM /*lParam*/, LPARAM /*lpData*/ )
+{
+	if ( uMsg == BFFM_INITIALIZED && g_use_dark_mode )
+	{
+		_AllowDarkModeForWindow( hWnd, true );
+		BOOL dark = TRUE;
+		_DwmSetWindowAttribute( hWnd, g_DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof( dark ) );
+		_EnumChildWindows( hWnd, EnumChildProc, 0 );
+		_SetWindowTheme( hWnd, L"DarkMode_Explorer", NULL );
+	}
+	return 0;
+}
+#endif
 
 void _BrowseForFolder( HWND hWnd, wchar_t *title, wchar_t **folder )
 {
@@ -104,6 +120,12 @@ void _BrowseForFolder( HWND hWnd, wchar_t *title, wchar_t **folder )
 		bi.hwndOwner = hWnd;
 		bi.lpszTitle = title;
 		bi.ulFlags = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_VALIDATE;
+#ifdef ENABLE_DARK_MODE
+		if ( g_use_dark_mode )
+		{
+			bi.lpfn = BrowseCallbackDarkMode;
+		}
+#endif
 
 		if ( use_file_open_dialog )
 		{

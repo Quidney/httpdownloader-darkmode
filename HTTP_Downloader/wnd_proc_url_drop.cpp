@@ -23,6 +23,7 @@
 #include "menus.h"
 #include "resource.h"
 #include "drop_window.h"
+#include "dark_mode.h"
 
 HWND g_hWnd_url_drop_window = NULL;
 
@@ -344,8 +345,18 @@ LRESULT CALLBACK URLDropWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 			if ( !window_on_top )
 			{
 				// Create a border.
-				HBRUSH color = _CreateSolidBrush( ( COLORREF )RGB( 0x00, 0xFF, 0xFF ) );
-				//_FrameRect( hDC, &rc, color );
+				COLORREF border_cr;
+#ifdef ENABLE_DARK_MODE
+				if ( g_use_dark_mode )
+				{
+					border_cr = dm_color_window_border;
+				}
+				else
+#endif
+				{
+					border_cr = ( COLORREF )RGB( 0x00, 0xFF, 0xFF );
+				}
+				HBRUSH color = _CreateSolidBrush( border_cr );
 				HRGN hRgn = _CreateRectRgn( rc.left, rc.top, rc.right, rc.bottom );
 				_FrameRgn( hDC, hRgn, color, _SCALE_URLD_( 1 ), _SCALE_URLD_( 1 ) );
 				_DeleteObject( hRgn );
