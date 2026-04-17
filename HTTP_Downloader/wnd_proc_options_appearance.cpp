@@ -21,6 +21,7 @@
 #include "lite_ole32.h"
 #include "lite_comdlg32.h"
 #include "utilities.h"
+#include "dark_mode.h"
 
 #include "treelistview.h"
 
@@ -42,6 +43,7 @@
 #define BTN_EXPAND_ADDED_GROUP_ITEMS		1010
 #define BTN_SCROLL_TO_LAST_ITEM				1011
 #define BTN_SHOW_EMBEDDED_ICON				1012
+#define BTN_ENABLE_DARK_MODE				1013
 
 // Appearance Tab
 HWND g_hWnd_row_options_list = NULL;
@@ -64,6 +66,7 @@ HWND g_hWnd_chk_sort_added_and_updating_items = NULL;
 HWND g_hWnd_chk_expand_added_group_items = NULL;
 HWND g_hWnd_chk_scroll_to_last_item = NULL;
 HWND g_hWnd_chk_show_embedded_icon = NULL;
+HWND g_hWnd_chk_enable_dark_mode = NULL;
 
 HWND g_hWnd_static_row_options = NULL;
 HWND g_hWnd_static_progress_color = NULL;
@@ -198,6 +201,21 @@ void SetAppearance()
 	opposite_row_background_color = t_even_row_background_color;
 }
 
+#ifdef ENABLE_DARK_MODE
+static UINT_PTR CALLBACK ChooseColorDarkModeHook( HWND hDlg, UINT uMsg, WPARAM /*wParam*/, LPARAM /*lParam*/ )
+{
+	if ( uMsg == WM_INITDIALOG && g_use_dark_mode )
+	{
+		_AllowDarkModeForWindow( hDlg, true );
+		BOOL dark = TRUE;
+		_DwmSetWindowAttribute( hDlg, g_DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof( dark ) );
+		_EnumChildWindows( hDlg, EnumChildProc, 0 );
+		_SetWindowTheme( hDlg, L"DarkMode_Explorer", NULL );
+	}
+	return 0;
+}
+#endif
+
 LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
 	switch ( msg )
@@ -206,6 +224,8 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		{
 			RECT rc;
 			_GetClientRect( hWnd, &rc );
+
+			g_hWnd_chk_enable_dark_mode = _CreateWindowW( WC_BUTTON, ST_V_Enable_dark_mode__requires_restart_, BS_AUTOCHECKBOX | WS_CHILD | WS_TABSTOP | WS_VISIBLE, 0, 0, 0, 0, hWnd, ( HMENU )BTN_ENABLE_DARK_MODE, NULL, NULL );
 
 			g_hWnd_static_row_options = _CreateWindowW( WC_STATIC, ST_V_Download_list_, WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hWnd, NULL, NULL, NULL );
 			g_hWnd_row_options_list = _CreateWindowExW( WS_EX_CLIENTEDGE, WC_LISTBOX, NULL, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_TABSTOP | WS_VSCROLL | WS_VISIBLE | LBS_DARK_MODE, 0, 0, 0, 0, hWnd, ( HMENU )LB_ROW_OPTIONS, NULL, NULL );
@@ -290,11 +310,12 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			si.cbSize = sizeof( SCROLLINFO );
 			si.fMask = SIF_RANGE | SIF_PAGE;
 			si.nMin = 0;
-			si.nMax = _SCALE_O_( 705 );	// Bottom of the last item in the window.
+			si.nMax = _SCALE_O_( 730 );	// Bottom of the last item in the window.
 			si.nPage = rc.bottom - rc.top;
 			_SetScrollInfo( hWnd, SB_VERT, &si, TRUE );
 
 
+			_SendMessageW( g_hWnd_chk_enable_dark_mode, WM_SETFONT, ( WPARAM )hFont_options, 0 );
 			_SendMessageW( g_hWnd_static_row_options, WM_SETFONT, ( WPARAM )hFont_options, 0 );
 			_SendMessageW( g_hWnd_row_options_list, WM_SETFONT, ( WPARAM )hFont_options, 0 );
 			_SendMessageW( g_hWnd_static_example_row, WM_SETFONT, ( WPARAM )hFont_options, 0 );
@@ -339,6 +360,7 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			_SetWindowLongPtrW( g_hWnd_chk_expand_added_group_items, GWLP_WNDPROC, ( LONG_PTR )FocusCBSubProc );
 			_SetWindowLongPtrW( g_hWnd_chk_scroll_to_last_item, GWLP_WNDPROC, ( LONG_PTR )FocusCBSubProc );
 			_SetWindowLongPtrW( g_hWnd_chk_show_embedded_icon, GWLP_WNDPROC, ( LONG_PTR )FocusCBSubProc );
+			_SetWindowLongPtrW( g_hWnd_chk_enable_dark_mode, GWLP_WNDPROC, ( LONG_PTR )FocusCBSubProc );
 
 			//
 
@@ -351,6 +373,16 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			_SendMessageW( g_hWnd_chk_expand_added_group_items, BM_SETCHECK, ( cfg_expand_added_group_items ? BST_CHECKED : BST_UNCHECKED ), 0 );
 			_SendMessageW( g_hWnd_chk_scroll_to_last_item, BM_SETCHECK, ( cfg_scroll_to_last_item ? BST_CHECKED : BST_UNCHECKED ), 0 );
 			_SendMessageW( g_hWnd_chk_show_embedded_icon, BM_SETCHECK, ( cfg_show_embedded_icon ? BST_CHECKED : BST_UNCHECKED ), 0 );
+
+			_SendMessageW( g_hWnd_chk_enable_dark_mode, BM_SETCHECK, ( cfg_enable_dark_mode ? BST_CHECKED : BST_UNCHECKED ), 0 );
+
+#ifdef ENABLE_DARK_MODE
+			// Disable the checkbox if the OS doesn't support dark mode (requires Win10 1809+).
+			if ( !g_use_dark_mode && !IsWindowsVersionOrGreater( 10, 0, WINDOWS_BUILD_1809 ) )
+			{
+				_EnableWindow( g_hWnd_chk_enable_dark_mode, FALSE );
+			}
+#endif
 
 			SetAppearance();
 
@@ -367,42 +399,43 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			RECT rc;
 			_GetClientRect( hWnd, &rc );
 
-			HDWP hdwp = _BeginDeferWindowPos( 22 );
-			_DeferWindowPos( hdwp, g_hWnd_static_row_options, HWND_TOP, 0, 0, rc.right - _SCALE_O_( 10 ), _SCALE_O_( 17 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_row_options_list, HWND_TOP, 0, _SCALE_O_( 18 ), _SCALE_O_( 260 ), _SCALE_O_( 95 ), SWP_NOZORDER );
+			HDWP hdwp = _BeginDeferWindowPos( 23 );
+			_DeferWindowPos( hdwp, g_hWnd_chk_enable_dark_mode, HWND_TOP, 0, _SCALE_O_( 0 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_row_options, HWND_TOP, 0, _SCALE_O_( 25 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 17 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_row_options_list, HWND_TOP, 0, _SCALE_O_( 43 ), _SCALE_O_( 260 ), _SCALE_O_( 95 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_example_row, HWND_TOP, _SCALE_O_( 265 ), _SCALE_O_( 18 ), _SCALE_O_( 180 ), _SCALE_O_( 95 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_example_row, HWND_TOP, _SCALE_O_( 265 ), _SCALE_O_( 43 ), _SCALE_O_( 180 ), _SCALE_O_( 95 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_chk_show_gridlines, HWND_TOP, 0, _SCALE_O_( 118 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_chk_draw_full_rows, HWND_TOP, 0, _SCALE_O_( 138 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_chk_draw_all_rows, HWND_TOP, 0, _SCALE_O_( 158 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_show_gridlines, HWND_TOP, 0, _SCALE_O_( 143 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_draw_full_rows, HWND_TOP, 0, _SCALE_O_( 163 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_draw_all_rows, HWND_TOP, 0, _SCALE_O_( 183 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_appearacne_hoz1, HWND_TOP, 0, _SCALE_O_( 184 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 1 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_appearacne_hoz1, HWND_TOP, 0, _SCALE_O_( 209 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 1 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_progress_color, HWND_TOP, 0, _SCALE_O_( 192 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 17 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_progress_color_list, HWND_TOP, 0, _SCALE_O_( 210 ), _SCALE_O_( 260 ), _SCALE_O_( 95 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_progress_color, HWND_TOP, 0, _SCALE_O_( 217 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 17 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_progress_color_list, HWND_TOP, 0, _SCALE_O_( 235 ), _SCALE_O_( 260 ), _SCALE_O_( 95 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_progress_color_options_list, HWND_TOP, 0, _SCALE_O_( 310 ), _SCALE_O_( 260 ), _SCALE_O_( 95 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_progress_color_options_list, HWND_TOP, 0, _SCALE_O_( 335 ), _SCALE_O_( 260 ), _SCALE_O_( 95 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_example_progress, HWND_TOP, _SCALE_O_( 265 ), _SCALE_O_( 210 ), _SCALE_O_( 180 ), _SCALE_O_( 50 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_example_progress, HWND_TOP, _SCALE_O_( 265 ), _SCALE_O_( 235 ), _SCALE_O_( 180 ), _SCALE_O_( 50 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_chk_show_part_progress, HWND_TOP, 0, _SCALE_O_( 410 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_show_part_progress, HWND_TOP, 0, _SCALE_O_( 435 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_appearacne_hoz2, HWND_TOP, 0, _SCALE_O_( 436 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 1 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_appearacne_hoz2, HWND_TOP, 0, _SCALE_O_( 461 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 1 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_td_progress_color, HWND_TOP, 0, _SCALE_O_( 444 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 17 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_td_progress_color_list, HWND_TOP, 0, _SCALE_O_( 462 ), _SCALE_O_( 260 ), _SCALE_O_( 80 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_td_progress_color, HWND_TOP, 0, _SCALE_O_( 469 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 17 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_td_progress_color_list, HWND_TOP, 0, _SCALE_O_( 487 ), _SCALE_O_( 260 ), _SCALE_O_( 80 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_td_progress_color_options_list, HWND_TOP, 0, _SCALE_O_( 547 ), _SCALE_O_( 160 ), _SCALE_O_( 60 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_td_progress_color_options_list, HWND_TOP, 0, _SCALE_O_( 572 ), _SCALE_O_( 160 ), _SCALE_O_( 60 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_example_td_progress, HWND_TOP, _SCALE_O_( 265 ), _SCALE_O_( 462 ), _SCALE_O_( 180 ), _SCALE_O_( 50 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_example_td_progress, HWND_TOP, _SCALE_O_( 265 ), _SCALE_O_( 487 ), _SCALE_O_( 180 ), _SCALE_O_( 50 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_static_appearacne_hoz3, HWND_TOP, 0, _SCALE_O_( 617 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 1 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_static_appearacne_hoz3, HWND_TOP, 0, _SCALE_O_( 642 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 1 ), SWP_NOZORDER );
 
-			_DeferWindowPos( hdwp, g_hWnd_chk_sort_added_and_updating_items, HWND_TOP, 0, _SCALE_O_( 625 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_chk_expand_added_group_items, HWND_TOP, 0, _SCALE_O_( 645 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_chk_scroll_to_last_item, HWND_TOP, 0, _SCALE_O_( 665 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
-			_DeferWindowPos( hdwp, g_hWnd_chk_show_embedded_icon, HWND_TOP, 0, _SCALE_O_( 685 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_sort_added_and_updating_items, HWND_TOP, 0, _SCALE_O_( 650 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_expand_added_group_items, HWND_TOP, 0, _SCALE_O_( 670 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_scroll_to_last_item, HWND_TOP, 0, _SCALE_O_( 690 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
+			_DeferWindowPos( hdwp, g_hWnd_chk_show_embedded_icon, HWND_TOP, 0, _SCALE_O_( 710 ), rc.right - _SCALE_O_( 10 ), _SCALE_O_( 20 ), SWP_NOZORDER );
 
 			_EndDeferWindowPos( hdwp );
 
@@ -438,7 +471,7 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			si.fMask |= SIF_RANGE | SIF_PAGE;
 			si.nPos = _SCALE2_( si.nPos, dpi_options );
 			si.nMin = 0;
-			si.nMax = _SCALE_O_( 705 );	// Bottom of the last item in the window.
+			si.nMax = _SCALE_O_( 730 );	// Bottom of the last item in the window.
 			si.nPage = rc.bottom - rc.top;
 			_SetScrollInfo( hWnd, SB_VERT, &si, TRUE );
 
@@ -636,6 +669,13 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 								cc.lStructSize = sizeof( CHOOSECOLOR );
 								cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+#ifdef ENABLE_DARK_MODE
+								if ( g_use_dark_mode )
+								{
+									cc.Flags |= CC_ENABLEHOOK;
+									cc.lpfnHook = ChooseColorDarkModeHook;
+								}
+#endif
 								cc.lpCustColors = g_CustColors;
 								cc.hwndOwner = hWnd;
 
@@ -751,6 +791,13 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 								cc.lStructSize = sizeof( CHOOSECOLOR );
 								cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+#ifdef ENABLE_DARK_MODE
+								if ( g_use_dark_mode )
+								{
+									cc.Flags |= CC_ENABLEHOOK;
+									cc.lpfnHook = ChooseColorDarkModeHook;
+								}
+#endif
 								cc.lpCustColors = g_CustColors;
 								cc.hwndOwner = hWnd;
 
@@ -801,6 +848,13 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 								cc.lStructSize = sizeof( CHOOSECOLOR );
 								cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+#ifdef ENABLE_DARK_MODE
+								if ( g_use_dark_mode )
+								{
+									cc.Flags |= CC_ENABLEHOOK;
+									cc.lpfnHook = ChooseColorDarkModeHook;
+								}
+#endif
 								cc.lpCustColors = g_CustColors;
 								cc.hwndOwner = hWnd;
 
@@ -863,6 +917,7 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				case BTN_EXPAND_ADDED_GROUP_ITEMS:
 				case BTN_SCROLL_TO_LAST_ITEM:
 				case BTN_SHOW_EMBEDDED_ICON:
+				case BTN_ENABLE_DARK_MODE:
 				{
 					_SendMessageW( g_hWnd_options, WM_OPTIONS_CHANGED, TRUE, 0 );
 				}
@@ -1161,6 +1216,8 @@ LRESULT CALLBACK AppearanceTabWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			cfg_expand_added_group_items = ( _SendMessageW( g_hWnd_chk_expand_added_group_items, BM_GETCHECK, 0, 0 ) == BST_CHECKED ? true : false );
 			cfg_scroll_to_last_item = ( _SendMessageW( g_hWnd_chk_scroll_to_last_item, BM_GETCHECK, 0, 0 ) == BST_CHECKED ? true : false );
 			cfg_show_embedded_icon = ( _SendMessageW( g_hWnd_chk_show_embedded_icon, BM_GETCHECK, 0, 0 ) == BST_CHECKED ? true : false );
+
+			cfg_enable_dark_mode = ( _SendMessageW( g_hWnd_chk_enable_dark_mode, BM_GETCHECK, 0, 0 ) == BST_CHECKED ? true : false );
 
 			cfg_show_gridlines = ( _SendMessageW( g_hWnd_chk_show_gridlines, BM_GETCHECK, 0, 0 ) == BST_CHECKED ? true : false );
 			cfg_draw_full_rows = ( _SendMessageW( g_hWnd_chk_draw_full_rows, BM_GETCHECK, 0, 0 ) == BST_CHECKED ? true : false );

@@ -167,6 +167,39 @@ HIMAGELIST UpdateToolbarIcons( HWND hWnd )
 
 	HDC hDC = _GetDC( hWnd );
 
+#ifdef ENABLE_DARK_MODE
+	// Invert toolbar icon colors for dark mode (preserve magenta mask).
+	if ( g_use_dark_mode )
+	{
+		BITMAP bmp_src;
+		_memzero( &bmp_src, sizeof( BITMAP ) );
+		_GetObjectW( hBmp, sizeof( BITMAP ), &bmp_src );
+
+		if ( bmp_src.bmBitsPixel == 32 && bmp_src.bmBits != NULL )
+		{
+			int pixel_count = bmp_src.bmWidth * bmp_src.bmHeight;
+			unsigned char *pixels = ( unsigned char * )bmp_src.bmBits;
+
+			for ( int i = 0; i < pixel_count; ++i )
+			{
+				unsigned char b = pixels[ 0 ];
+				unsigned char g = pixels[ 1 ];
+				unsigned char r = pixels[ 2 ];
+
+				// Skip the magenta mask color (0xFF, 0x00, 0xFF).
+				if ( !( r == 0xFF && g == 0x00 && b == 0xFF ) )
+				{
+					pixels[ 0 ] = 255 - b;
+					pixels[ 1 ] = 255 - g;
+					pixels[ 2 ] = 255 - r;
+				}
+
+				pixels += 4;
+			}
+		}
+	}
+#endif
+
 	HDC hdcMem_bmp = _CreateCompatibleDC( hDC );
 	HBITMAP ohbm = ( HBITMAP )_SelectObject( hdcMem_bmp, hBmp );
 	_DeleteObject( ohbm );

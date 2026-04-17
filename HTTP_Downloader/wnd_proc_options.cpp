@@ -19,6 +19,7 @@
 #include "globals.h"
 
 #include "lite_gdi32.h"
+#include "lite_shell32.h"
 
 #include "file_operations.h"
 #include "site_manager_utilities.h"
@@ -27,6 +28,8 @@
 
 #include "utilities.h"
 #include "string_tables.h"
+
+#include "cmessagebox.h"
 
 #include "options.h"
 
@@ -541,6 +544,40 @@ LRESULT CALLBACK OptionsWndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 					if ( g_hWnd_advanced_tab != NULL ) { _SendMessageW( g_hWnd_advanced_tab, WM_SAVE_OPTIONS, 0, 0 ); }
 
 					save_config();
+
+					// Check if dark mode setting changed (requires restart).
+					if ( cfg_enable_dark_mode != g_use_dark_mode )
+					{
+						if ( CMessageBoxW( hWnd, ST_V_PROMPT_restart_for_dark_mode, PROGRAM_CAPTION, CMB_ICONQUESTION | CMB_YESNO ) == CMBIDYES )
+						{
+							// Relaunch the application with the same command line.
+							wchar_t exe_path[ MAX_PATH ];
+							GetModuleFileNameW( NULL, exe_path, MAX_PATH );
+
+							// Parse past the exe path in the command line to get only the arguments.
+							LPWSTR cmd_line = GetCommandLineW();
+							if ( cmd_line != NULL )
+							{
+								if ( *cmd_line == L'\"' )
+								{
+									++cmd_line;
+									while ( *cmd_line != L'\0' && *cmd_line != L'\"' ) { ++cmd_line; }
+									if ( *cmd_line == L'\"' ) { ++cmd_line; }
+								}
+								else
+								{
+									while ( *cmd_line != L'\0' && *cmd_line != L' ' ) { ++cmd_line; }
+								}
+								while ( *cmd_line == L' ' ) { ++cmd_line; }
+							}
+
+							if ( ( INT_PTR )_ShellExecuteW( NULL, L"open", exe_path, cmd_line, NULL, SW_SHOWNORMAL ) > 32 )
+							{
+								_SendMessageW( g_hWnd_main, WM_EXIT, 0, 0 );
+								return 0;
+							}
+						}
+					}
 
 					if ( site_list_changed ) { save_site_info(); site_list_changed = false; }
 					if ( sftp_fps_host_list_changed ) { save_sftp_fps_host_info(); sftp_fps_host_list_changed = false; }
