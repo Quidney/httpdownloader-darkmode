@@ -18,6 +18,7 @@
 
 #include "lite_dlls.h"
 #include "lite_ntdll.h"
+#include <intrin.h>
 
 #ifndef NTDLL_USE_STATIC_LIB
 
@@ -26,6 +27,22 @@
 		{
 	#endif
 			int _fltused = 1;	// Dummy value so that the linker shuts up.
+
+			// Provide memset/memcpy for compiler-generated calls (struct zeroing, etc.)
+			// since the CRT is excluded (IgnoreAllDefaultLibraries=true).
+			#pragma function( memset )
+			void *memset( void *dest, int c, size_t count )
+			{
+				__stosb( ( unsigned char * )dest, ( unsigned char )c, count );
+				return dest;
+			}
+
+			#pragma function( memcpy )
+			void *memcpy( void *dest, const void *src, size_t count )
+			{
+				__movsb( ( unsigned char * )dest, ( const unsigned char * )src, count );
+				return dest;
+			}
 	#ifdef __cplusplus
 		}
 	#endif

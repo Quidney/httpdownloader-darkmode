@@ -37,6 +37,7 @@ typedef struct _UNICODE_STRING
 
 #include <schannel.h>
 
+#ifndef SCH_CREDENTIALS_VERSION
 #define SCH_CREDENTIALS_VERSION  0x00000005
 
 typedef enum _eTlsAlgorithmUsage
@@ -84,6 +85,7 @@ typedef struct _SCH_CREDENTIALS
 	DWORD				cTlsParameters;
 	PTLS_PARAMETERS		pTlsParameters;
 } SCH_CREDENTIALS, *PSCH_CREDENTIALS;
+#endif // SCH_CREDENTIALS_VERSION
 
 #include "lite_ws2_32.h"
 
@@ -92,15 +94,21 @@ typedef struct _SCH_CREDENTIALS
 #define SSL_STATE_SHUTDOWN		0
 #define SSL_STATE_RUNNING		1
 
+#ifndef SP_PROT_TLS1_1
 #define SP_PROT_TLS1_1_SERVER		0x00000100
 #define SP_PROT_TLS1_1_CLIENT		0x00000200
 #define SP_PROT_TLS1_1				( SP_PROT_TLS1_1_SERVER | SP_PROT_TLS1_1_CLIENT )
+#endif
+#ifndef SP_PROT_TLS1_2
 #define SP_PROT_TLS1_2_SERVER		0x00000400
 #define SP_PROT_TLS1_2_CLIENT		0x00000800
 #define SP_PROT_TLS1_2				( SP_PROT_TLS1_2_SERVER | SP_PROT_TLS1_2_CLIENT )
+#endif
+#ifndef SP_PROT_TLS1_3
 #define SP_PROT_TLS1_3_SERVER		0x00001000
 #define SP_PROT_TLS1_3_CLIENT		0x00002000
 #define SP_PROT_TLS1_3				( SP_PROT_TLS1_3_SERVER | SP_PROT_TLS1_3_CLIENT )
+#endif
 
 /*struct ACCEPT_DATA
 {
