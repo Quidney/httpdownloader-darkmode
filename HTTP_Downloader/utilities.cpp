@@ -281,7 +281,7 @@ bool cfg_expand_added_group_items = false;
 bool cfg_scroll_to_last_item = false;
 bool cfg_show_embedded_icon = false;
 
-bool cfg_enable_dark_mode = false;
+bool cfg_enable_dark_mode = true;
 
 bool cfg_show_gridlines = true;
 bool cfg_draw_full_rows = false;
