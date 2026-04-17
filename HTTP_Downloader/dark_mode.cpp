@@ -165,7 +165,7 @@ DWORD LBS_DARK_MODE = 0;
 
 DWORD g_dm_buildNumber = 0;
 
-DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 0;	// 19 for builds before 20H1, 20 for builds after.
+DWORD g_DWMWA_USE_IMMERSIVE_DARK_MODE = 0;	// 19 for builds before 20H1, 20 for builds after.
 
 HTHEME g_hTheme_menu = NULL;
 HBRUSH g_hBrush_window_background = NULL;
@@ -5226,8 +5226,10 @@ BOOL CALLBACK EnumChildProc( HWND hWnd, LPARAM /*lParam*/ )
 	}
 	else if ( ret == 13 && _StrCmpNW( buf, L"SysTreeView32", 13 ) == 0 )
 	{
+		_AllowDarkModeForWindow( hWnd, true );
 		_SendMessageW( hWnd, TVM_SETBKCOLOR, 0, ( LPARAM )dm_color_edit_background );
 		_SendMessageW( hWnd, TVM_SETTEXTCOLOR, 0, ( LPARAM )dm_color_window_text );
+		_SendMessageW( hWnd, TVM_SETLINECOLOR, 0, ( LPARAM )dm_color_window_text );
 
 		DWORD style = ( DWORD )_GetWindowLongPtrW( hWnd, GWL_STYLE );
 		if ( style & TVS_CHECKBOXES )
@@ -5373,7 +5375,7 @@ BOOL CALLBACK EnumTLWProc( HWND hWnd, LPARAM /*lParam*/ )
 		/*WINDOWCOMPOSITIONATTRIBDATA data = { WCA_USEDARKMODECOLORS, &dark, sizeof( dark ) };
 		_SetWindowCompositionAttribute( hWnd, &data );*/
 
-		_DwmSetWindowAttribute( hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof( dark ) );
+		_DwmSetWindowAttribute( hWnd, g_DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof( dark ) );
 
 		SetSubclass( hWnd, &DMControlColorSubProc, &g_sci_control_color );
 
@@ -5386,7 +5388,7 @@ BOOL CALLBACK EnumTLWProc( HWND hWnd, LPARAM /*lParam*/ )
 		/*WINDOWCOMPOSITIONATTRIBDATA data = { WCA_USEDARKMODECOLORS, &dark, sizeof( dark ) };
 		_SetWindowCompositionAttribute( hWnd, &data );*/
 
-		_DwmSetWindowAttribute( hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof( dark ) );
+		_DwmSetWindowAttribute( hWnd, g_DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof( dark ) );
 
 		SetSubclass( hWnd, &DMMsgBoxColorSubProc, &g_sci_msg_box );
 
@@ -5580,11 +5582,11 @@ bool InitDarkMode()
 
 		if ( g_dm_buildNumber < WINDOWS_BUILD_20H1 )
 		{
-			DWMWA_USE_IMMERSIVE_DARK_MODE = 19;
+			g_DWMWA_USE_IMMERSIVE_DARK_MODE = 19;
 		}
 		else
 		{
-			DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+			g_DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
 		}
 
 		//

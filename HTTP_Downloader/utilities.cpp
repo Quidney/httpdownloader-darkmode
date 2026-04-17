@@ -281,6 +281,8 @@ bool cfg_expand_added_group_items = false;
 bool cfg_scroll_to_last_item = false;
 bool cfg_show_embedded_icon = false;
 
+bool cfg_enable_dark_mode = false;
+
 bool cfg_show_gridlines = true;
 bool cfg_draw_full_rows = false;
 bool cfg_draw_all_rows = false;
@@ -288,42 +290,6 @@ bool cfg_show_part_progress = false;
 
 FONT_SETTINGS cfg_even_row_font_settings = { NULL };					// COLOR_WINDOWTEXT (set in SetDefaultAppearance)
 FONT_SETTINGS cfg_odd_row_font_settings = { NULL };						// COLOR_WINDOWTEXT (set in SetDefaultAppearance)
-
-#ifdef ENABLE_DARK_MODE
-
-COLORREF cfg_background_color = RGB( 0x00, 0x00, 0x00 );
-COLORREF cfg_gridline_color = RGB( 0x40, 0x40, 0x40 );
-COLORREF cfg_selection_marquee_color = RGB( 0xC0, 0xC0, 0xC0 );
-
-COLORREF cfg_even_row_background_color = RGB( 0x20, 0x20, 0x20 );
-COLORREF cfg_odd_row_background_color = RGB( 0x00, 0x00, 0x00 );
-
-COLORREF cfg_even_row_highlight_color = RGB( 0x62, 0x62, 0x62 );
-COLORREF cfg_odd_row_highlight_color = RGB( 0x62, 0x62, 0x62 );
-
-COLORREF cfg_even_row_highlight_font_color = RGB( 0xFF, 0xFF, 0xFF );	// COLOR_HIGHLIGHTTEXT (set in SetDefaultAppearance)
-COLORREF cfg_odd_row_highlight_font_color = RGB( 0xFF, 0xFF, 0xFF );	// COLOR_HIGHLIGHTTEXT (set in SetDefaultAppearance)
-
-// a = Progress Color, b = Background Color, c = Progress Font Color, d = Background Font Color, e = Border Color
-// b = COLOR_WINDOW (set in SetDefaultAppearance)
-COLORREF cfg_color_1a = RGB( 0x40, 0xC0, 0x40 ), cfg_color_1b = RGB( 0x00, 0x00, 0x00 ), cfg_color_1c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_1d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_1e = RGB( 0x00, 0x80, 0x00 );		//STATUS_ALLOCATING_FILE
-COLORREF cfg_color_2a = RGB( 0xFF, 0x80, 0xFF ), cfg_color_2b = RGB( 0x00, 0x00, 0x00 ), cfg_color_2c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_2d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_2e = RGB( 0xA0, 0x40, 0xA0 );		//STATUS_AUTH_REQUIRED
-COLORREF cfg_color_3a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_3b = RGB( 0x00, 0x00, 0x00 ), cfg_color_3c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_3d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_3e = RGB( 0x40, 0x40, 0xFF );		//STATUS_COMPLETED
-COLORREF cfg_color_4a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_4b = RGB( 0x00, 0x00, 0x00 ), cfg_color_4c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_4d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_4e = RGB( 0x40, 0x40, 0xFF );		//STATUS_CONNECTING
-COLORREF cfg_color_5a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_5b = RGB( 0x00, 0x00, 0x00 ), cfg_color_5c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_5d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_5e = RGB( 0x40, 0x40, 0xFF );		//STATUS_DOWNLOADING
-COLORREF cfg_color_6a = RGB( 0xFF, 0x80, 0x80 ), cfg_color_6b = RGB( 0x00, 0x00, 0x00 ), cfg_color_6c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_6d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_6e = RGB( 0xFF, 0x20, 0x20 );		//STATUS_FAILED
-COLORREF cfg_color_7a = RGB( 0xFF, 0x80, 0x80 ), cfg_color_7b = RGB( 0x00, 0x00, 0x00 ), cfg_color_7c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_7d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_7e = RGB( 0xFF, 0x20, 0x20 );		//STATUS_FILE_IO_ERROR
-COLORREF cfg_color_8a = RGB( 0xFF, 0x80, 0x80 ), cfg_color_8b = RGB( 0x00, 0x00, 0x00 ), cfg_color_8c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_8d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_8e = RGB( 0xFF, 0x20, 0x20 );		//STATUS_INSUFFICIENT_DISK_SPACE
-COLORREF cfg_color_9a = RGB( 0x40, 0xC0, 0x40 ), cfg_color_9b = RGB( 0x00, 0x00, 0x00 ), cfg_color_9c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_9d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_9e = RGB( 0x00, 0x80, 0x00 );		//STATUS_MOVING_FILE
-COLORREF cfg_color_10a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_10b = RGB( 0x00, 0x00, 0x00 ), cfg_color_10c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_10d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_10e = RGB( 0x40, 0x40, 0xFF );	//STATUS_PAUSED
-COLORREF cfg_color_11a = RGB( 0xFF, 0x80, 0xFF ), cfg_color_11b = RGB( 0x00, 0x00, 0x00 ), cfg_color_11c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_11d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_11e = RGB( 0xA0, 0x40, 0xA0 );	//STATUS_PROXY_AUTH_REQUIRED
-COLORREF cfg_color_12a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_12b = RGB( 0x00, 0x00, 0x00 ), cfg_color_12c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_12d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_12e = RGB( 0x40, 0x40, 0xFF );	//STATUS_QUEUED
-COLORREF cfg_color_13a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_13b = RGB( 0x00, 0x00, 0x00 ), cfg_color_13c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_13d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_13e = RGB( 0x40, 0x40, 0xFF );	//STATUS_RESTART
-COLORREF cfg_color_14a = RGB( 0x80, 0x80, 0xA0 ), cfg_color_14b = RGB( 0x00, 0x00, 0x00 ), cfg_color_14c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_14d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_14e = RGB( 0x40, 0x40, 0x80 );	//STATUS_SKIPPED
-COLORREF cfg_color_15a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_15b = RGB( 0x00, 0x00, 0x00 ), cfg_color_15c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_15d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_15e = RGB( 0x40, 0x40, 0xFF );	//STATUS_STOPPED
-COLORREF cfg_color_16a = RGB( 0xFF, 0xB0, 0x00 ), cfg_color_16b = RGB( 0x00, 0x00, 0x00 ), cfg_color_16c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_16d = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_16e = RGB( 0xFF, 0x50, 0x00 );	//STATUS_TIMED_OUT
-
-#else
 
 COLORREF cfg_background_color = RGB( 0xFF, 0xFF, 0xFF );				// COLOR_WINDOW (set in SetDefaultAppearance)
 COLORREF cfg_gridline_color = RGB( 0xF0, 0xF0, 0xF0 );
@@ -356,8 +322,6 @@ COLORREF cfg_color_13a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_13b = RGB( 0xFF, 0xF
 COLORREF cfg_color_14a = RGB( 0x80, 0x80, 0xA0 ), cfg_color_14b = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_14c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_14d = RGB( 0x00, 0x00, 0x00 ), cfg_color_14e = RGB( 0x40, 0x40, 0x80 );	//STATUS_SKIPPED
 COLORREF cfg_color_15a = RGB( 0xA0, 0xA0, 0xFF ), cfg_color_15b = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_15c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_15d = RGB( 0x00, 0x00, 0x00 ), cfg_color_15e = RGB( 0x40, 0x40, 0xFF );	//STATUS_STOPPED
 COLORREF cfg_color_16a = RGB( 0xFF, 0xB0, 0x00 ), cfg_color_16b = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_16c = RGB( 0xFF, 0xFF, 0xFF ), cfg_color_16d = RGB( 0x00, 0x00, 0x00 ), cfg_color_16e = RGB( 0xFF, 0x50, 0x00 );	//STATUS_TIMED_OUT
-
-#endif
 
 COLORREF *progress_colors[ NUM_COLORS ] = { &cfg_color_1a, &cfg_color_1b, &cfg_color_1c, &cfg_color_1d, &cfg_color_1e,
 											&cfg_color_2a, &cfg_color_2b, &cfg_color_2c, &cfg_color_2d, &cfg_color_2e,
@@ -432,6 +396,9 @@ int *download_columns_width[ NUM_COLUMNS ] = { &cfg_column_width1,
 HANDLE worker_semaphore = NULL;			// Blocks shutdown while a worker thread is active.
 bool in_worker_thread = false;
 bool kill_worker_thread_flag = false;	// Allow for a clean shutdown.
+
+// Dark mode color storage. Initialized with dark defaults; overwritten by read_config if version >= 0x0B.
+DM_COLOR_SET cfg_dm_colors = { 0 };
 
 bool g_download_history_changed = false;
 
@@ -696,13 +663,8 @@ void SetDefaultAppearance()
 	//_memzero( &cfg_even_row_font_settings.lf, sizeof( LOGFONT ) );
 	//_memzero( &cfg_odd_row_font_settings.lf, sizeof( LOGFONT ) );
 
+	// Always set light-mode defaults into cfg_* (the active set at startup)
 	cfg_odd_row_highlight_font_color = cfg_even_row_highlight_font_color = ( COLORREF )_GetSysColor( COLOR_HIGHLIGHTTEXT );
-
-#ifdef ENABLE_DARK_MODE
-
-	cfg_odd_row_font_settings.font_color = cfg_even_row_font_settings.font_color = ( COLORREF )RGB( 0xFF, 0xFF, 0xFF );
-
-#else
 
 	cfg_odd_row_font_settings.font_color = cfg_even_row_font_settings.font_color = ( COLORREF )_GetSysColor( COLOR_WINDOWTEXT );
 
@@ -710,26 +672,225 @@ void SetDefaultAppearance()
 
 	cfg_background_color = cfg_odd_row_background_color = ( COLORREF )_GetSysColor( COLOR_WINDOW );
 
-#endif
-
 	// Windows XP's color is different. Let's just hardcode it.
 	//cfg_selection_marquee_color = ( COLORREF )_GetSysColor( COLOR_HOTLIGHT );
 
-	cfg_color_1b = cfg_odd_row_background_color;
-	cfg_color_2b = cfg_odd_row_background_color;
-	cfg_color_3b = cfg_odd_row_background_color;
-	cfg_color_4b = cfg_odd_row_background_color;
-	cfg_color_5b = cfg_odd_row_background_color;
-	cfg_color_6b = cfg_odd_row_background_color;
-	cfg_color_7b = cfg_odd_row_background_color;
-	cfg_color_8b = cfg_odd_row_background_color;
-	cfg_color_9b = cfg_odd_row_background_color;
-	cfg_color_10b = cfg_odd_row_background_color;
-	cfg_color_11b = cfg_odd_row_background_color;
-	cfg_color_12b = cfg_odd_row_background_color;
-	cfg_color_13b = cfg_odd_row_background_color;
-	cfg_color_14b = cfg_odd_row_background_color;
-	cfg_color_15b = cfg_odd_row_background_color;
+	cfg_color_1b = cfg_color_2b = cfg_color_3b = cfg_color_4b = cfg_odd_row_background_color;
+	cfg_color_5b = cfg_color_6b = cfg_color_7b = cfg_color_8b = cfg_odd_row_background_color;
+	cfg_color_9b = cfg_color_10b = cfg_color_11b = cfg_color_12b = cfg_odd_row_background_color;
+	cfg_color_13b = cfg_color_14b = cfg_color_15b = cfg_color_16b = cfg_odd_row_background_color;
+
+	// Always populate dark mode defaults into cfg_dm_colors.
+	// These will be overwritten by read_config if the user has saved dark-mode colors before.
+	SetDefaultDarkModeColors();
+}
+
+// Populate cfg_dm_colors with sensible dark defaults.
+void SetDefaultDarkModeColors()
+{
+	DM_COLOR_SET &dm = cfg_dm_colors;
+
+	// List text: soft white for reduced eye strain
+	dm.odd_row_font_color = dm.even_row_font_color = ( COLORREF )RGB( 0xE0, 0xE0, 0xE0 );
+
+	// List backgrounds: standard dark base with subtle alternating rows
+	dm.background_color = dm.odd_row_background_color = ( COLORREF )RGB( 0x1E, 0x1E, 0x1E );
+	dm.even_row_background_color = ( COLORREF )RGB( 0x25, 0x25, 0x25 );
+
+	dm.gridline_color = ( COLORREF )RGB( 0x33, 0x33, 0x33 );
+	dm.selection_marquee_color = ( COLORREF )RGB( 0x26, 0x4F, 0x78 );
+
+	// Selection (highlight) colors
+	dm.even_row_highlight_color = dm.odd_row_highlight_color = ( COLORREF )RGB( 0x26, 0x4F, 0x78 );
+	dm.even_row_highlight_font_color = dm.odd_row_highlight_font_color = ( COLORREF )RGB( 0xFF, 0xFF, 0xFF );
+
+	// Progress bar colors: index layout matches progress_colors[] = 5 per status (a,b,c,d,e)
+	// a = Progress Color, b = Background Color, c = Progress Font, d = Background Font, e = Border
+
+	COLORREF dark_bg = dm.odd_row_background_color;
+	COLORREF dark_prog_font = ( COLORREF )RGB( 0xFF, 0xFF, 0xFF );		// progress font (on filled bar)
+	COLORREF dark_bg_font = ( COLORREF )RGB( 0xE0, 0xE0, 0xE0 );		// background font (on unfilled bar)
+
+	// Green: Allocating File(1), Moving File(9)
+	COLORREF green_a = ( COLORREF )RGB( 0x35, 0x8A, 0x35 );
+	COLORREF green_e = ( COLORREF )RGB( 0x20, 0x60, 0x20 );
+	// Purple: Authorization Required(2), Proxy Auth Required(11)
+	COLORREF purple_a = ( COLORREF )RGB( 0xA0, 0x50, 0xA0 );
+	COLORREF purple_e = ( COLORREF )RGB( 0x70, 0x30, 0x70 );
+	// Blue: Completed(3), Connecting(4), Downloading(5), Paused(10), Queued(12), Restart(13), Stopped(15)
+	COLORREF blue_a = ( COLORREF )RGB( 0x44, 0x6E, 0xB8 );
+	COLORREF blue_e = ( COLORREF )RGB( 0x2E, 0x4E, 0x8A );
+	// Red: Failed(6), File IO Error(7), Insufficient Disk Space(8)
+	COLORREF red_a = ( COLORREF )RGB( 0xC0, 0x45, 0x45 );
+	COLORREF red_e = ( COLORREF )RGB( 0x90, 0x20, 0x20 );
+	// Grey-blue: Skipped(14)
+	COLORREF grey_a = ( COLORREF )RGB( 0x5A, 0x5A, 0x7A );
+	COLORREF grey_e = ( COLORREF )RGB( 0x3A, 0x3A, 0x5A );
+	// Amber: Timed Out(16)
+	COLORREF amber_a = ( COLORREF )RGB( 0xC0, 0x80, 0x00 );
+	COLORREF amber_e = ( COLORREF )RGB( 0x90, 0x50, 0x00 );
+
+	// Helper: set 5 colors for one status (a=progress, b=bg, c=prog font, d=bg font, e=border)
+	#define SET_DM_STATUS( idx, col_a, col_e ) \
+		dm.progress[ (idx)*5 + 0 ] = col_a; \
+		dm.progress[ (idx)*5 + 1 ] = dark_bg; \
+		dm.progress[ (idx)*5 + 2 ] = dark_prog_font; \
+		dm.progress[ (idx)*5 + 3 ] = dark_bg_font; \
+		dm.progress[ (idx)*5 + 4 ] = col_e;
+
+	SET_DM_STATUS( 0, green_a, green_e )		// 1: Allocating File
+	SET_DM_STATUS( 1, purple_a, purple_e )		// 2: Auth Required
+	SET_DM_STATUS( 2, blue_a, blue_e )			// 3: Completed
+	SET_DM_STATUS( 3, blue_a, blue_e )			// 4: Connecting
+	SET_DM_STATUS( 4, blue_a, blue_e )			// 5: Downloading
+	SET_DM_STATUS( 5, red_a, red_e )			// 6: Failed
+	SET_DM_STATUS( 6, red_a, red_e )			// 7: File IO Error
+	SET_DM_STATUS( 7, red_a, red_e )			// 8: Insufficient Disk Space
+	SET_DM_STATUS( 8, green_a, green_e )		// 9: Moving File
+	SET_DM_STATUS( 9, blue_a, blue_e )			// 10: Paused
+	SET_DM_STATUS( 10, purple_a, purple_e )		// 11: Proxy Auth Required
+	SET_DM_STATUS( 11, blue_a, blue_e )			// 12: Queued
+	SET_DM_STATUS( 12, blue_a, blue_e )			// 13: Restart
+	SET_DM_STATUS( 13, grey_a, grey_e )			// 14: Skipped
+	SET_DM_STATUS( 14, blue_a, blue_e )			// 15: Stopped
+	SET_DM_STATUS( 15, amber_a, amber_e )		// 16: Timed Out
+
+	#undef SET_DM_STATUS
+
+	// Tray icon progress colors (toned down for dark theme)
+	dm.td_progress[ 0 ] = ( COLORREF )RGB( 0x00, 0xC0, 0x00 );	// Tray downloading progress
+	dm.td_progress[ 1 ] = ( COLORREF )RGB( 0x00, 0x50, 0x00 );	// Tray downloading border
+	dm.td_progress[ 2 ] = ( COLORREF )RGB( 0xC0, 0xC0, 0x00 );	// Tray paused progress
+	dm.td_progress[ 3 ] = ( COLORREF )RGB( 0x50, 0x50, 0x00 );	// Tray paused border
+	dm.td_progress[ 4 ] = ( COLORREF )RGB( 0xC0, 0x00, 0x00 );	// Tray error progress
+	dm.td_progress[ 5 ] = ( COLORREF )RGB( 0x50, 0x00, 0x00 );	// Tray error border
+
+	// Drop window progress colors
+	dm.td_progress[ 6 ] = ( COLORREF )RGB( 0x00, 0xC0, 0x00 );	// Drop downloading progress
+	dm.td_progress[ 7 ] = ( COLORREF )RGB( 0x00, 0x50, 0x00 );	// Drop downloading border
+	dm.td_progress[ 8 ] = ( COLORREF )RGB( 0xC0, 0xC0, 0x00 );	// Drop paused progress
+	dm.td_progress[ 9 ] = ( COLORREF )RGB( 0x50, 0x50, 0x00 );	// Drop paused border
+	dm.td_progress[ 10 ] = ( COLORREF )RGB( 0xC0, 0x00, 0x00 );	// Drop error progress
+	dm.td_progress[ 11 ] = ( COLORREF )RGB( 0x50, 0x00, 0x00 );	// Drop error border
+}
+
+// Copy dark-mode colors from cfg_dm_colors into the active cfg_* variables.
+// Call after read_config() when dark mode is enabled.
+void SwapToDarkModeColors()
+{
+	DM_COLOR_SET &dm = cfg_dm_colors;
+
+	cfg_background_color = dm.background_color;
+	cfg_gridline_color = dm.gridline_color;
+	cfg_selection_marquee_color = dm.selection_marquee_color;
+	cfg_even_row_background_color = dm.even_row_background_color;
+	cfg_odd_row_background_color = dm.odd_row_background_color;
+	cfg_even_row_highlight_color = dm.even_row_highlight_color;
+	cfg_odd_row_highlight_color = dm.odd_row_highlight_color;
+	cfg_even_row_highlight_font_color = dm.even_row_highlight_font_color;
+	cfg_odd_row_highlight_font_color = dm.odd_row_highlight_font_color;
+	cfg_even_row_font_settings.font_color = dm.even_row_font_color;
+	cfg_odd_row_font_settings.font_color = dm.odd_row_font_color;
+
+	for ( unsigned char i = 0; i < NUM_COLORS; ++i )
+	{
+		*progress_colors[ i ] = dm.progress[ i ];
+	}
+
+	for ( unsigned char i = 0; i < TD_NUM_COLORS; ++i )
+	{
+		*td_progress_colors[ i ] = dm.td_progress[ i ];
+	}
+}
+
+// Save the active cfg_* colors back into the dark-mode set.
+// Call before save_config() when dark mode is active to persist user edits.
+void SyncActiveColorsToDarkSet()
+{
+	DM_COLOR_SET &dm = cfg_dm_colors;
+
+	dm.background_color = cfg_background_color;
+	dm.gridline_color = cfg_gridline_color;
+	dm.selection_marquee_color = cfg_selection_marquee_color;
+	dm.even_row_background_color = cfg_even_row_background_color;
+	dm.odd_row_background_color = cfg_odd_row_background_color;
+	dm.even_row_highlight_color = cfg_even_row_highlight_color;
+	dm.odd_row_highlight_color = cfg_odd_row_highlight_color;
+	dm.even_row_highlight_font_color = cfg_even_row_highlight_font_color;
+	dm.odd_row_highlight_font_color = cfg_odd_row_highlight_font_color;
+	dm.even_row_font_color = cfg_even_row_font_settings.font_color;
+	dm.odd_row_font_color = cfg_odd_row_font_settings.font_color;
+
+	for ( unsigned char i = 0; i < NUM_COLORS; ++i )
+	{
+		dm.progress[ i ] = *progress_colors[ i ];
+	}
+
+	for ( unsigned char i = 0; i < TD_NUM_COLORS; ++i )
+	{
+		dm.td_progress[ i ] = *td_progress_colors[ i ];
+	}
+}
+
+// Save the active cfg_* colors back into the light-mode set (cfg_dm_colors is left alone).
+// This is a no-op since light mode colors ARE the cfg_* variables,
+// but we need a separate cfg_lm_* backup when dark mode is active.
+// We store the light backup in DM_COLOR_SET cfg_lm_backup.
+
+DM_COLOR_SET cfg_lm_backup = { 0 };
+
+void BackupLightModeColors()
+{
+	DM_COLOR_SET &lm = cfg_lm_backup;
+
+	lm.background_color = cfg_background_color;
+	lm.gridline_color = cfg_gridline_color;
+	lm.selection_marquee_color = cfg_selection_marquee_color;
+	lm.even_row_background_color = cfg_even_row_background_color;
+	lm.odd_row_background_color = cfg_odd_row_background_color;
+	lm.even_row_highlight_color = cfg_even_row_highlight_color;
+	lm.odd_row_highlight_color = cfg_odd_row_highlight_color;
+	lm.even_row_highlight_font_color = cfg_even_row_highlight_font_color;
+	lm.odd_row_highlight_font_color = cfg_odd_row_highlight_font_color;
+	lm.even_row_font_color = cfg_even_row_font_settings.font_color;
+	lm.odd_row_font_color = cfg_odd_row_font_settings.font_color;
+
+	for ( unsigned char i = 0; i < NUM_COLORS; ++i )
+	{
+		lm.progress[ i ] = *progress_colors[ i ];
+	}
+
+	for ( unsigned char i = 0; i < TD_NUM_COLORS; ++i )
+	{
+		lm.td_progress[ i ] = *td_progress_colors[ i ];
+	}
+}
+
+void RestoreLightModeColors()
+{
+	DM_COLOR_SET &lm = cfg_lm_backup;
+
+	cfg_background_color = lm.background_color;
+	cfg_gridline_color = lm.gridline_color;
+	cfg_selection_marquee_color = lm.selection_marquee_color;
+	cfg_even_row_background_color = lm.even_row_background_color;
+	cfg_odd_row_background_color = lm.odd_row_background_color;
+	cfg_even_row_highlight_color = lm.even_row_highlight_color;
+	cfg_odd_row_highlight_color = lm.odd_row_highlight_color;
+	cfg_even_row_highlight_font_color = lm.even_row_highlight_font_color;
+	cfg_odd_row_highlight_font_color = lm.odd_row_highlight_font_color;
+	cfg_even_row_font_settings.font_color = lm.even_row_font_color;
+	cfg_odd_row_font_settings.font_color = lm.odd_row_font_color;
+
+	for ( unsigned char i = 0; i < NUM_COLORS; ++i )
+	{
+		*progress_colors[ i ] = lm.progress[ i ];
+	}
+
+	for ( unsigned char i = 0; i < TD_NUM_COLORS; ++i )
+	{
+		*td_progress_colors[ i ] = lm.td_progress[ i ];
+	}
 }
 
 BOOL CALLBACK EnumChildFontProc( HWND hWnd, LPARAM lParam )

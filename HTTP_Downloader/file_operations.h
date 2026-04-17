@@ -19,7 +19,7 @@
 #ifndef _FILE_OPERATIONS_H
 #define _FILE_OPERATIONS_H
 
-#define MAGIC_ID_SETTINGS			"HDM\x09"	// Version 10
+#define MAGIC_ID_SETTINGS			"HDM\x0B"	// Version 12
 #define MAGIC_ID_DOWNLOADS			"HDM\x18"	// Version 9
 #define MAGIC_ID_SITES				"HDM\x23"	// Version 4
 #define MAGIC_ID_SFTP_HOSTS			"HDM\x30"	// Version 1

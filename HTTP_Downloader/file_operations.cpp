@@ -24,6 +24,7 @@
 #include "lite_normaliz.h"
 
 #include "file_operations.h"
+#include "dark_mode.h"
 #include "menus.h"
 #include "utilities.h"
 #include "string_tables.h"
@@ -241,6 +242,12 @@ RETRY_OPEN:
 								next += sizeof( bool );
 							}
 
+							if ( version >= 0x0A )
+							{
+								_memcpy_s( &cfg_enable_dark_mode, sizeof( bool ), next, sizeof( bool ) );
+								next += sizeof( bool );
+							}
+
 							_memcpy_s( &cfg_background_color, sizeof( COLORREF ), next, sizeof( COLORREF ) );
 							next += sizeof( COLORREF );
 							_memcpy_s( &cfg_gridline_color, sizeof( COLORREF ), next, sizeof( COLORREF ) );
@@ -300,6 +307,13 @@ RETRY_OPEN:
 							{
 								_memcpy_s( td_progress_colors[ i ], sizeof( COLORREF ), next, sizeof( COLORREF ) );
 								next += sizeof( COLORREF );
+							}
+
+							// Dark mode color set (stored separately so light-mode colors are preserved).
+							if ( version >= 0x0B )
+							{
+								_memcpy_s( &cfg_dm_colors, sizeof( DM_COLOR_SET ), next, sizeof( DM_COLOR_SET ) );
+								next += sizeof( DM_COLOR_SET );
 							}
 
 							// Options Connection
@@ -1314,6 +1328,20 @@ char save_config()
 	char ret_status = 0;
 	char open_count = 0;
 
+	// When dark mode is active, cfg_* holds dark colors. We need to:
+	// 1. Save current cfg_* (dark) back into cfg_dm_colors
+	// 2. Restore light-mode colors into cfg_* for writing
+	// 3. After writing, restore dark colors back into cfg_*
+	// Note: Use g_use_dark_mode (runtime state), not cfg_enable_dark_mode (new setting).
+	// The user may have just unchecked dark mode, so cfg_enable_dark_mode could be false
+	// while cfg_* still holds dark colors.
+	bool dm_swap_needed = g_use_dark_mode;
+	if ( dm_swap_needed )
+	{
+		SyncActiveColorsToDarkSet();
+		RestoreLightModeColors();
+	}
+
 	_wmemcpy_s( g_base_directory + g_base_directory_length, MAX_PATH - g_base_directory_length, L"\\http_downloader_settings\0", 26 );
 	//g_base_directory[ g_base_directory_length + 25 ] = 0;	// Sanity.
 
@@ -1342,7 +1370,8 @@ RETRY_OPEN:
 				   ( sizeof( LONG ) * 4 ) +
 				   ( sizeof( BYTE ) * 6 ) +
 				   ( sizeof( COLORREF ) * ( NUM_COLORS + 11 + TD_NUM_COLORS ) ) +
-				   ( sizeof( unsigned long long ) * 5 ) + reserved;
+				   ( sizeof( unsigned long long ) * 5 ) +
+				   sizeof( DM_COLOR_SET ) + reserved;
 		int pos = 0;
 		unsigned char i;
 
@@ -1480,6 +1509,9 @@ RETRY_OPEN:
 		_memcpy_s( write_buf + pos, size - pos, &cfg_show_embedded_icon, sizeof( bool ) );
 		pos += sizeof( bool );
 
+		_memcpy_s( write_buf + pos, size - pos, &cfg_enable_dark_mode, sizeof( bool ) );
+		pos += sizeof( bool );
+
 		_memcpy_s( write_buf + pos, size - pos, &cfg_background_color, sizeof( COLORREF ) );
 		pos += sizeof( COLORREF );
 		_memcpy_s( write_buf + pos, size - pos, &cfg_gridline_color, sizeof( COLORREF ) );
@@ -1540,6 +1572,10 @@ RETRY_OPEN:
 			_memcpy_s( write_buf + pos, size - pos, td_progress_colors[ i ], sizeof( COLORREF ) );
 			pos += sizeof( COLORREF );
 		}
+
+		// Dark mode color set.
+		_memcpy_s( write_buf + pos, size - pos, &cfg_dm_colors, sizeof( DM_COLOR_SET ) );
+		pos += sizeof( DM_COLOR_SET );
 
 		// Options Connection
 
@@ -2224,6 +2260,12 @@ RETRY_OPEN:
 #ifdef ENABLE_LOGGING
 	WriteLog( ( ret_status == 0 ? LOG_INFO_MISC : LOG_ERROR ), "Finished saving configuration: %d | %lu bytes", ret_status, lfz );
 #endif
+
+	// Restore dark-mode colors back into cfg_* if we swapped them out.
+	if ( dm_swap_needed )
+	{
+		SwapToDarkModeColors();
+	}
 
 	return ret_status;
 }

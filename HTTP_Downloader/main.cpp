@@ -744,22 +744,7 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		#endif
 	}
 
-#ifdef ENABLE_DARK_MODE
-	if ( IsWindowsVersionOrGreater( HIBYTE( _WIN32_WINNT_WIN10 ), LOBYTE( _WIN32_WINNT_WIN10 ), 0 ) )
-	{
-		wchar_t dm_file_path[ MAX_PATH ];
-		_wmemcpy_s( dm_file_path, MAX_PATH, g_program_directory, g_program_directory_length );
-		g_base_directory_length = g_program_directory_length;
-		_wmemcpy_s( dm_file_path + g_base_directory_length, MAX_PATH - g_base_directory_length, L"\\dark_mode\0", 11 );
-		//dm_file_path[ g_base_directory_length + 10 ] = 0;	// Sanity.
-
-		// See if the user wants to run the program with dark mode support.
-		if ( GetFileAttributesW( dm_file_path ) != INVALID_FILE_ATTRIBUTES )
-		{
-			g_use_dark_mode = InitDarkMode();
-		}
-	}
-#endif
+	// Dark mode initialization moved to after read_config().
 
 	// Use our default directory if none was supplied or check if there's a "portable" file in the same directory.
 	if ( default_directory )
@@ -898,6 +883,16 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	InitializeLocaleValues();
 
 	read_config();
+
+	// Initialize dark mode based on config setting (requires Win10+).
+	if ( cfg_enable_dark_mode && IsWindowsVersionOrGreater( HIBYTE( _WIN32_WINNT_WIN10 ), LOBYTE( _WIN32_WINNT_WIN10 ), 0 ) )
+	{
+		// Backup the light-mode colors that read_config loaded, then swap in dark-mode colors.
+		BackupLightModeColors();
+		SwapToDarkModeColors();
+
+		g_use_dark_mode = InitDarkMode();
+	}
 
 	if ( !override_shutdown_action )
 	{

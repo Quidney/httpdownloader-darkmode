@@ -610,6 +610,8 @@ extern bool cfg_expand_added_group_items;
 extern bool cfg_scroll_to_last_item;
 extern bool cfg_show_embedded_icon;
 
+extern bool cfg_enable_dark_mode;
+
 extern bool cfg_show_gridlines;
 extern bool cfg_show_part_progress;
 
@@ -667,6 +669,33 @@ extern COLORREF cfg_color_16a, cfg_color_16b, cfg_color_16c, cfg_color_16d, cfg_
 
 extern COLORREF *progress_colors[ NUM_COLORS ];
 extern COLORREF *td_progress_colors[ TD_NUM_COLORS ];
+
+// Dark mode stores a separate color set so light-mode user colors are preserved.
+// When dark mode is active, cfg_* holds dark colors (via SwapToDarkModeColors at startup).
+// cfg_dm_colors always holds the dark set; cfg_lm_backup (in utilities.cpp) holds the light set.
+// When dark mode is inactive, cfg_* holds light colors and cfg_dm_colors holds dark defaults.
+
+struct DM_COLOR_SET
+{
+	COLORREF background_color;
+	COLORREF gridline_color;
+	COLORREF selection_marquee_color;
+	COLORREF even_row_background_color;
+	COLORREF odd_row_background_color;
+	COLORREF even_row_highlight_color;
+	COLORREF odd_row_highlight_color;
+	COLORREF even_row_highlight_font_color;
+	COLORREF odd_row_highlight_font_color;
+	COLORREF even_row_font_color;
+	COLORREF odd_row_font_color;
+	COLORREF progress[ NUM_COLORS ];		// 80 progress bar colors
+	COLORREF td_progress[ TD_NUM_COLORS ];	// 12 tray/drop colors
+};
+
+extern DM_COLOR_SET cfg_dm_colors;
+
+void SwapToDarkModeColors();
+void SyncActiveColorsToDarkSet();
 
 extern COLORREF g_CustColors[ 16 ];
 

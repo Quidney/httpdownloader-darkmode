@@ -649,7 +649,9 @@ STRING_TABLE_DATA file_filters_string_table[] =
 	{ L"Private Keys", 12 },
 	{ L"PuTTY Private Key Files", 23 },
 	{ L"WAV", 3 },
-	{ L"X.509 Certificates", 18 }
+	{ L"X.509 Certificates", 18 },
+	{ L"Enable dark mode (requires restart)", 35 },
+	{ L"A restart is required for the dark mode change to take effect.\r\nRestart now?", 78 }
 };
 
 void InitializeLocaleValues()

@@ -59,7 +59,7 @@
 #define SFTP_EC_STRING_TABLE_SIZE				6
 #define SFTP_HKA_STRING_TABLE_SIZE				6
 
-#define FILE_FILTERS_STRING_TABLE_SIZE			8
+#define FILE_FILTERS_STRING_TABLE_SIZE			10
 
 #define TOTAL_LOCALE_STRINGS	( MONTH_STRING_TABLE_SIZE + \
 								  DAY_STRING_TABLE_SIZE + \
@@ -725,6 +725,10 @@ void UninitializeLocaleValues();
 #define ST_V_PuTTY_Private_Key_Files					g_locale_table[ 501 ].value
 #define ST_V_WAV										g_locale_table[ 502 ].value
 #define ST_V_X_509_Certificates							g_locale_table[ 503 ].value
+
+// Dark Mode
+#define ST_V_Enable_dark_mode__requires_restart_		g_locale_table[ 504 ].value
+#define ST_V_PROMPT_restart_for_dark_mode				g_locale_table[ 505 ].value
 
 //
 

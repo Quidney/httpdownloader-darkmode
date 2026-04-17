@@ -61,6 +61,9 @@ void CheckColumnOrders( char *column_arr[], unsigned char num_columns );
 void CheckColumnWidths();
 
 void SetDefaultAppearance();
+void SetDefaultDarkModeColors();
+void BackupLightModeColors();
+void RestoreLightModeColors();
 
 BOOL CALLBACK EnumChildFontProc( HWND hWnd, LPARAM lParam );
 HFONT UpdateFont( UINT dpi );

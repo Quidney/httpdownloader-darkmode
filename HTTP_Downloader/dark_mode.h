@@ -24,7 +24,7 @@
 #ifndef _DARK_MODE_H
 #define _DARK_MODE_H
 
-//#define ENABLE_DARK_MODE
+#define ENABLE_DARK_MODE
 
 #ifdef ENABLE_DARK_MODE
 
@@ -392,6 +392,7 @@ void CleanupButtonGlyphs( HWND hWnd );
 extern bool g_use_dark_mode;
 
 extern DWORD g_dm_buildNumber;
+extern DWORD g_DWMWA_USE_IMMERSIVE_DARK_MODE;
 
 extern HTHEME g_hTheme_menu;
 extern HBRUSH g_hBrush_window_background;
